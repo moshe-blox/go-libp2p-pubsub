@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -1140,7 +1141,7 @@ func (p *PubSub) pushMsg(msg *Message) {
 	// reject messages claiming to be from ourselves but not locally published
 	self := p.host.ID()
 	if peer.ID(msg.GetFrom()) == self && src != self {
-		log.Debugf("dropping message claiming to be from self but forwarded from %s", src)
+		log.Debugf("dropping message claiming to be from self (%s == %s) but forwarded from %s: %s", peer.ID(msg.GetFrom()), self, src, base64.StdEncoding.EncodeToString(msg.Data))
 		p.tracer.RejectMessage(msg, RejectSelfOrigin)
 		return
 	}
